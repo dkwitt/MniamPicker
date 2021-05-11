@@ -1,6 +1,50 @@
 import sqlite3
 
+#stworzenie globalnyhv list obiektow dla podkladkk miesa i dodatkow
+#i kazdy kostruktor obiektu (np miesa) niech dodaje selfa do listy
 
+LIST_PODKLADKA = []
+LIST_MIESO = []
+LIST_DODATKI = []
+LIST_OBIAD = []
+DB_DIR = 'C:\\Users\\Dominika\\Mniam\\MniamPicker\\testdb5.sqlite'
+
+class Obiad:
+    nazwa = None
+    id = None
+    podkladka = None
+    mieso = None
+    dodatki = None
+    def __init__(self, id, nazwa, podkladka, mieso, dodatki):
+        self.id = id
+        self.nazwa = nazwa
+        self.podkladka = podkladka
+        self.mieso = mieso
+        self.dodatki = [dodatki]
+    def get_obiad(self):
+        pass
+
+class Mieso:
+    nazwa = None
+    id = None
+    def __init__(self, id, nazwa):
+        self.id = id
+        self.nazwa = nazwa
+        LIST_MIESO.append(self)
+class Podkladka:
+    nazwa = None
+    id = None
+    def __init__(self, id, nazwa):
+        self.id = id
+        self.nazwa = nazwa
+        LIST_PODKLADKA.append(self)
+class Dodatki:
+    nazwa = None
+    id = None
+    def __init__(self, id, nazwa):
+        self.id = id
+        self.nazwa = nazwa
+        LIST_DODATKI.append(self)
 # 1. STWORZENIE BAZY I POŁĄCZENIE JEJ
 # 2. NAPISANIE FUNKCJI CREATE/ADD? OBIAD/PODL/DOD
 # 3. FUNKCJA READ
@@ -8,7 +52,7 @@ import sqlite3
 # 5. FUNKCJA DELETE
 
 def start():
-    connection = sqlite3.connect('testdb4.sqlite')
+    connection = sqlite3.connect(DB_DIR)
 
     cursor = connection.cursor()
     query = """
@@ -60,7 +104,7 @@ def start():
 
 
 def add_obiad(podkladka, mieso, dodatki, nazwa):
-    conn = sqlite3.connect('testdb4.sqlite')
+    conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
     if validate_sql_safe(nazwa):
@@ -78,7 +122,7 @@ def add_obiad(podkladka, mieso, dodatki, nazwa):
     conn.close()
 
 def add_podkladka(podkladka):
-    conn = sqlite3.connect('testdb4.sqlite')
+    conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
 
@@ -93,7 +137,7 @@ def add_podkladka(podkladka):
     conn.close()
 
 def add_mieso(mieso):
-    conn = sqlite3.connect('testdb4.sqlite')
+    conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
 
@@ -108,7 +152,7 @@ def add_mieso(mieso):
     conn.close()
 
 def add_dodatki(dodatki):
-    conn = sqlite3.connect('testdb4.sqlite')
+    conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
 
@@ -123,7 +167,7 @@ def add_dodatki(dodatki):
     conn.close()
 
 def update_obiad(podkladka, mieso, dodatki):
-    conn = sqlite3.connect('testdb4.sqlite')
+    conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
 
@@ -139,7 +183,7 @@ def update_obiad(podkladka, mieso, dodatki):
 
 
 def delete_obiad():
-    conn = sqlite3.connect('testdb4.sqlite')
+    conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
 
@@ -154,9 +198,26 @@ def delete_obiad():
     conn.commit()
     conn.close()
     # return all_rows / one_row
+def get_db_podkladka():
+    conn = sqlite3.connect(DB_DIR)
 
-def get_obiad():
-	conn = sqlite3.connect('testdb4.sqlite')
+    cursor = conn.cursor()
+
+    query = """
+    	    SELECT *
+    	    FROM podkladka
+    	"""
+    lista = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista.append([row[0], row[1]])
+    #one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista
+def get_db_obiad():
+	conn = sqlite3.connect(DB_DIR)
 
 	cursor = conn.cursor()
 
@@ -170,14 +231,17 @@ def get_obiad():
     # + one_row z fetchone?
 	conn.commit()
 	conn.close()
-
 	return all_rows
 
 
+
 def read_data():
-    obiady = get_obiad()
+    obiady = get_db_obiad()
     for obiad in obiady:
         print(obiad)
+
+#zdefinoowac kladsy obiektow takie ktore sa w baazie danych czyli pdokladka mieso dodatki obiad . kazda z tych klas bedzie miala konstruktor i geter ("get cos tam i bedzie bral wsztskie pola) pola wenwtarz klasy musza byc prywatne
+#czyli w obiekcie obiad bedzie nazwa, id i listy obiektow typu podkladka, mieso  , dodtaki
 
 # + moze funkcja na sortowanie???
 def validate_sql_safe(slowo):
@@ -223,5 +287,10 @@ def seed_db():
     add_obiad(1,1,2,"pierwszy")
 
 def clear_databse():
+    pass
+#seed_db()
 
-seed_db()
+print(get_db_podkladka())
+print(len(LIST_PODKLADKA))
+
+
