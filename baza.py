@@ -216,22 +216,62 @@ def get_db_podkladka():
     conn.commit()
     conn.close()
     return lista
+def get_db_mieso():
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = """
+    	    SELECT *
+    	    FROM mieso
+    	"""
+    lista2 = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista2.append([row[0], row[1]])
+    #one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista2
+
+def get_db_dodatki():
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = """
+    	    SELECT *
+    	    FROM dodatki
+    	"""
+    lista3 = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista3.append([row[0], row[1]])
+    #one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista3
+
 def get_db_obiad():
-	conn = sqlite3.connect(DB_DIR)
+    conn = sqlite3.connect(DB_DIR)
 
-	cursor = conn.cursor()
+    cursor = conn.cursor()
 
-	query = """
-	    SELECT *
-	    FROM obiad
-	"""
-
-	cursor.execute(query)
-	all_rows = cursor.fetchall()
-    # + one_row z fetchone?
-	conn.commit()
-	conn.close()
-	return all_rows
+    query = """
+    	    SELECT *
+    	    FROM obiad
+    	"""
+    lista4 = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista4.append([row[0], row[1]])
+    #one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista4
 
 
 
