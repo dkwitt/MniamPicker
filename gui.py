@@ -7,8 +7,8 @@ psg.theme("GreenTan")
 left_col = [psg.Button("Create")],[psg.Button("Read")],[psg.Button("Update")],[psg.Button("Delete")]
 
 data = baza.get_db_obiad()
-headings = ['Id','Nazwa']
-layout_obiad = [[psg.Table(values=data[1:][:], headings=headings, max_col_width= 100,
+headings2 = ['Id','Nazwa', 'Podkladka', 'Mieso', 'Dodatki']
+layout_obiad = [[psg.Table(values=data[1:][:], headings=headings2, max_col_width= True,
                     # background_color='light blue',
                     auto_size_columns=True,
                     display_row_numbers=True,
@@ -57,8 +57,8 @@ right_col = [[psg.TabGroup([[psg.Tab("Obiad", layout_obiad),
 
 layout = [[psg.Column(left_col, justification="c"), psg.Column(right_col)]]
 
-window = psg.Window("Mniam mniam picker", layout)#.Finalize()
-#window.Maximize()
+window = psg.Window("Mniam mniam picker", layout).Finalize()
+window.Maximize()
 while True:
     event, values = window.read()
     print(event, values)

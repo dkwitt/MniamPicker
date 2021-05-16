@@ -1,8 +1,5 @@
 import sqlite3
 
-#stworzenie globalnyhv list obiektow dla podkladkk miesa i dodatkow
-#i kazdy kostruktor obiektu (np miesa) niech dodaje selfa do listy
-
 LIST_PODKLADKA = []
 LIST_MIESO = []
 LIST_DODATKI = []
@@ -45,6 +42,12 @@ class Dodatki:
         self.id = id
         self.nazwa = nazwa
         LIST_DODATKI.append(self)
+
+#class DodatkiObiadRelation:
+
+   # def __init__(self):
+   #     klucz obcy dla obiadu i dodatków
+   #
 # 1. STWORZENIE BAZY I POŁĄCZENIE JEJ
 # 2. NAPISANIE FUNKCJI CREATE/ADD? OBIAD/PODL/DOD
 # 3. FUNKCJA READ
@@ -83,6 +86,15 @@ def start():
     cursor.execute(query)
     connection.commit()
     query = """
+                	    CREATE TABLE IF NOT EXISTS dodatkiobiadrelation(
+                	    	id_dodatki REFERENCES dodatki(id_dodatki) 
+                	    	id_obiad REFERENCES obiad(id_obiad)
+                	    )
+                	"""
+
+    cursor.execute(query)
+    connection.commit()
+    query = """
     	    CREATE TABLE IF NOT EXISTS obiad(
     	    	id_obiad INTEGER PRIMARY KEY,
     	    	nazwa VARCHAR(50),
@@ -91,7 +103,6 @@ def start():
     	    	id_dodatki INTEGER NOT NULL,
     	    	FOREIGN KEY(id_podkladka) REFERENCES podkladka (id_podkladka),
     	    	FOREIGN KEY(id_mieso) REFERENCES mieso (id_mieso),
-    	    	FOREIGN KEY(id_dodatki) REFERENCES dodatki (id_dodatki)
     	    )
     	"""
 
@@ -267,21 +278,74 @@ def get_db_obiad():
     cursor.execute(query)
     all_rows = cursor.fetchall()
     for row in all_rows:
-        lista4.append([row[0], row[1]])
+        lista4.append([row[0], row[1], get_podkladka_name(row[2]), get_mieso_name(row[3]), get_dodatki_name(row[4])])
     #one_row = cursor.fetchone()
     conn.commit()
     conn.close()
     return lista4
 
+def get_podkladka_name(id):
+    conn = sqlite3.connect(DB_DIR)
 
+    cursor = conn.cursor()
+
+    query = f"""
+               	    SELECT *
+               	    FROM podkladka
+               	    WHERE id_podkladka = {id}
+               	"""
+    lista3 = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista3.append([row[1]])
+    # one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista3
+def get_mieso_name(id):
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = f"""
+           	    SELECT *
+           	    FROM mieso
+           	    WHERE id_mieso = {id}
+           	"""
+    lista3 = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista3.append([row[1]])
+    # one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista3
+def get_dodatki_name(krzysiu):
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = f"""
+        	    SELECT *
+        	    FROM dodatki
+        	    WHERE id_dodatki = {krzysiu}
+        	"""
+    lista3 = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista3.append([row[1]])
+    # one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista3
 
 def read_data():
     obiady = get_db_obiad()
     for obiad in obiady:
         print(obiad)
-
-#zdefinoowac kladsy obiektow takie ktore sa w baazie danych czyli pdokladka mieso dodatki obiad . kazda z tych klas bedzie miala konstruktor i geter ("get cos tam i bedzie bral wsztskie pola) pola wenwtarz klasy musza byc prywatne
-#czyli w obiekcie obiad bedzie nazwa, id i listy obiektow typu podkladka, mieso  , dodtaki
 
 # + moze funkcja na sortowanie???
 def validate_sql_safe(slowo):
@@ -324,13 +388,13 @@ def seed_db():
     add_mieso("kurczak")
     add_podkladka("pyra")
     add_podkladka("kluska")
-    add_obiad(1,1,2,"pierwszy")
+    add_obiad(1, [1,2], 1, "pierwszy")
 
 def clear_databse():
     pass
-#seed_db()
+seed_db()
 
-print(get_db_podkladka())
-print(len(LIST_PODKLADKA))
-
+#print(get_db_podkladka())
+#print(len(LIST_PODKLADKA))
+print(get_db_obiad())
 
