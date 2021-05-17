@@ -1,9 +1,5 @@
 import sqlite3
 
-LIST_PODKLADKA = []
-LIST_MIESO = []
-LIST_DODATKI = []
-LIST_OBIAD = []
 DB_DIR = 'C:\\Users\\Dominika\\Mniam\\MniamPicker\\testdb5.sqlite'
 
 class Obiad:
@@ -11,15 +7,16 @@ class Obiad:
     id = None
     podkladka = None
     mieso = None
-    dodatki = None
-    def __init__(self, id, nazwa, podkladka, mieso, dodatki):
+    dodatki = []
+    def __init__(self, id, nazwa, podkladka, mieso):
         self.id = id
         self.nazwa = nazwa
         self.podkladka = podkladka
         self.mieso = mieso
-        self.dodatki = [dodatki]
-    def get_obiad(self):
-        pass
+    def update_self_dodatki(self):
+        self.dodatki = get_relation_obiad(self.id)
+
+
 
 class Mieso:
     nazwa = None
@@ -27,27 +24,27 @@ class Mieso:
     def __init__(self, id, nazwa):
         self.id = id
         self.nazwa = nazwa
-        LIST_MIESO.append(self)
 class Podkladka:
     nazwa = None
     id = None
     def __init__(self, id, nazwa):
         self.id = id
         self.nazwa = nazwa
-        LIST_PODKLADKA.append(self)
 class Dodatki:
     nazwa = None
     id = None
     def __init__(self, id, nazwa):
         self.id = id
         self.nazwa = nazwa
-        LIST_DODATKI.append(self)
 
-#class DodatkiObiadRelation:
+class DodatkiObiadRelation:
+    fk_obiad = None
+    fk_dodatki = None
+    def __init__(self, fk_dodatki, fk_obiad):
+        self.fk_dodatki =fk_dodatki
+        self.fk_obiad = fk_obiad
 
-   # def __init__(self):
-   #     klucz obcy dla obiadu i dodatków
-   #
+
 # 1. STWORZENIE BAZY I POŁĄCZENIE JEJ
 # 2. NAPISANIE FUNKCJI CREATE/ADD? OBIAD/PODL/DOD
 # 3. FUNKCJA READ
@@ -85,29 +82,29 @@ def start():
 
     cursor.execute(query)
     connection.commit()
-    query = """
-                	    CREATE TABLE IF NOT EXISTS dodatkiobiadrelation(
-                	    	id_dodatki REFERENCES dodatki(id_dodatki) 
-                	    	id_obiad REFERENCES obiad(id_obiad)
-                	    )
-                	"""
 
-    cursor.execute(query)
-    connection.commit()
     query = """
     	    CREATE TABLE IF NOT EXISTS obiad(
     	    	id_obiad INTEGER PRIMARY KEY,
     	    	nazwa VARCHAR(50),
     	    	id_podkladka INTEGER NOT NULL,
     	    	id_mieso INTEGER NOT NULL,
-    	    	id_dodatki INTEGER NOT NULL,
     	    	FOREIGN KEY(id_podkladka) REFERENCES podkladka (id_podkladka),
-    	    	FOREIGN KEY(id_mieso) REFERENCES mieso (id_mieso),
+    	    	FOREIGN KEY(id_mieso) REFERENCES mieso (id_mieso)
     	    )
     	"""
 
     cursor.execute(query)
 
+    connection.commit()
+    query = """
+                    	    CREATE TABLE IF NOT EXISTS dodatkiobiadrelation(
+                    	    	fk_dodatki REFERENCES dodatki(id_dodatki),
+                    	    	fk_obiad REFERENCES obiad(id_obiad)
+                    	    )
+                    	"""
+
+    cursor.execute(query)
     connection.commit()
     connection.close()
 
@@ -121,11 +118,11 @@ def add_obiad(podkladka, mieso, dodatki, nazwa):
     if validate_sql_safe(nazwa):
 
         query = """
-            INSERT INTO obiad(nazwa, id_podkladka, id_mieso, id_dodatki )
-                        VALUES ( ?,?,?,? )
+            INSERT INTO obiad(nazwa, id_podkladka, id_mieso )
+                        VALUES ( ?,?,?)
         """
 
-        cursor.execute(query, (nazwa, podkladka, mieso, dodatki))
+        cursor.execute(query, (nazwa, podkladka, mieso))
 
         conn.commit()
     else:
@@ -193,15 +190,15 @@ def update_obiad(podkladka, mieso, dodatki):
     conn.close()
 
 
-def delete_obiad():
+def delete_obiad(cos):
     conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
 
-    query = """
+    query = f"""
         DELETE *
         FROM obiad
-        WHERE nazwa = ?"""
+        WHERE nazwa = {cos}"""
     cursor.execute(query)
     all_rows = cursor.fetchall()
     one_row = cursor.fetchone()
@@ -227,6 +224,32 @@ def get_db_podkladka():
     conn.commit()
     conn.close()
     return lista
+
+def get_relation_obiad(id_obiad):
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = f"""
+     	    SELECT *
+     	    FROM dodatkiobiadrelation
+     	    WHERE fk_obiad={id_obiad}
+     	"""
+    lista = []
+    cursor.execute(query)
+    all_rows = cursor.fetchall()
+    for row in all_rows:
+        lista.append(get_dodatki_name(row[0]))
+    # one_row = cursor.fetchone()
+    conn.commit()
+    conn.close()
+    return lista
+def list_to_string(list_in):
+    print(list_in)
+    str_out=""
+    for ele in list_in:
+        str_out += str(ele)
+    return str_out
 def get_db_mieso():
     conn = sqlite3.connect(DB_DIR)
 
@@ -278,7 +301,8 @@ def get_db_obiad():
     cursor.execute(query)
     all_rows = cursor.fetchall()
     for row in all_rows:
-        lista4.append([row[0], row[1], get_podkladka_name(row[2]), get_mieso_name(row[3]), get_dodatki_name(row[4])])
+        lista4.append([row[0], row[1], get_podkladka_name(row[2]), get_mieso_name(row[3]),
+                       list_to_string(get_relation_obiad(row[0]))])
     #one_row = cursor.fetchone()
     conn.commit()
     conn.close()
@@ -294,15 +318,12 @@ def get_podkladka_name(id):
                	    FROM podkladka
                	    WHERE id_podkladka = {id}
                	"""
-    lista3 = []
     cursor.execute(query)
-    all_rows = cursor.fetchall()
-    for row in all_rows:
-        lista3.append([row[1]])
-    # one_row = cursor.fetchone()
+    #all_rows = cursor.fetchall()
+    one_row = cursor.fetchone()
     conn.commit()
     conn.close()
-    return lista3
+    return str(one_row[1])
 def get_mieso_name(id):
     conn = sqlite3.connect(DB_DIR)
 
@@ -313,15 +334,12 @@ def get_mieso_name(id):
            	    FROM mieso
            	    WHERE id_mieso = {id}
            	"""
-    lista3 = []
     cursor.execute(query)
-    all_rows = cursor.fetchall()
-    for row in all_rows:
-        lista3.append([row[1]])
-    # one_row = cursor.fetchone()
+    #all_rows = cursor.fetchall()
+    one_row = cursor.fetchone()
     conn.commit()
     conn.close()
-    return lista3
+    return str(one_row[1])
 def get_dodatki_name(krzysiu):
     conn = sqlite3.connect(DB_DIR)
 
@@ -332,15 +350,11 @@ def get_dodatki_name(krzysiu):
         	    FROM dodatki
         	    WHERE id_dodatki = {krzysiu}
         	"""
-    lista3 = []
     cursor.execute(query)
-    all_rows = cursor.fetchall()
-    for row in all_rows:
-        lista3.append([row[1]])
-    # one_row = cursor.fetchone()
+    one_row = cursor.fetchone()
     conn.commit()
     conn.close()
-    return lista3
+    return str(one_row[1])
 
 def read_data():
     obiady = get_db_obiad()
@@ -379,6 +393,23 @@ def validate_sql_safe(slowo):
 #             add_dodatki(odp3)
 start()
 
+
+def add_dodatkiobiadrelation(id_dodatki, id_obiad):
+
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = """
+	    INSERT INTO dodatkiobiadrelation(fk_dodatki, fk_obiad)
+	    	        VALUES ( ?,?)
+	"""
+
+    cursor.execute(query, (id_dodatki, id_obiad))
+
+    conn.commit()
+    conn.close()
+
 def seed_db():
     add_dodatki("pomidor")
     add_dodatki("burak")
@@ -388,13 +419,17 @@ def seed_db():
     add_mieso("kurczak")
     add_podkladka("pyra")
     add_podkladka("kluska")
-    add_obiad(1, [1,2], 1, "pierwszy")
+    add_obiad(1, 1, 1, "pierwszy")
+    add_dodatkiobiadrelation(1,1)
+    add_dodatkiobiadrelation(2,1)
+    add_dodatkiobiadrelation(3,1)
 
 def clear_databse():
     pass
-seed_db()
+start()
+# seed_db()
 
 #print(get_db_podkladka())
 #print(len(LIST_PODKLADKA))
-print(get_db_obiad())
+print(get_db_dodatki())
 

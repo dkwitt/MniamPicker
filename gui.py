@@ -7,7 +7,7 @@ psg.theme("GreenTan")
 left_col = [psg.Button("Create")],[psg.Button("Read")],[psg.Button("Update")],[psg.Button("Delete")]
 
 data = baza.get_db_obiad()
-headings2 = ['Id','Nazwa', 'Podkladka', 'Mieso', 'Dodatki']
+headings2 = ['Id', 'Nazwa', 'Podkladka', 'Mieso', 'Dodatki']
 layout_obiad = [[psg.Table(values=data[1:][:], headings=headings2, max_col_width= True,
                     # background_color='light blue',
                     auto_size_columns=True,
@@ -18,8 +18,8 @@ layout_obiad = [[psg.Table(values=data[1:][:], headings=headings2, max_col_width
                     row_height=35)]]
 
 data = baza.get_db_podkladka()
-headings = ['Id','Nazwa']
-layout_podkladka = [[psg.Table(values=data[1:][:], headings=headings, max_col_width= 100,
+headings3 = ['Id','Nazwa']
+layout_podkladka = [[psg.Table(values=data[1:][:], headings=headings3, max_col_width= True,
                     # background_color='light blue',
                     auto_size_columns=True,
                     display_row_numbers=True,
@@ -29,8 +29,8 @@ layout_podkladka = [[psg.Table(values=data[1:][:], headings=headings, max_col_wi
                     row_height=35)]]
 
 data2 = baza.get_db_mieso()
-headings = ['Id','Nazwa']
-layout_mieso = [[psg.Table(values=data2[1:][:], headings=headings, max_col_width= 100,
+headings4 = ['Id','Nazwa']
+layout_mieso = [[psg.Table(values=data2[1:][:], headings=headings4, max_col_width= True,
                     # background_color='light blue',
                     auto_size_columns=True,
                     display_row_numbers=True,
@@ -40,8 +40,8 @@ layout_mieso = [[psg.Table(values=data2[1:][:], headings=headings, max_col_width
                     row_height=35)]]
 
 data3 = baza.get_db_dodatki()
-headings = ['Id','Nazwa']
-layout_dodatki = [[psg.Table(values=data3[1:][:], headings=headings, max_col_width= 100,
+headings5 = ['Id','Nazwa']
+layout_dodatki = [[psg.Table(values=data3[1:][:], headings=headings5, max_col_width= True,
                     # background_color='light blue',
                     auto_size_columns=True,
                     display_row_numbers=True,
@@ -53,7 +53,8 @@ layout_dodatki = [[psg.Table(values=data3[1:][:], headings=headings, max_col_wid
 right_col = [[psg.TabGroup([[psg.Tab("Obiad", layout_obiad),
                              psg.Tab("Podkładka", layout_podkladka),
                              psg.Tab("Mięso", layout_mieso),
-                             psg.Tab("Dodatki", layout_dodatki)]])]]
+                             psg.Tab("Dodatki", layout_dodatki)
+                             ]])]]
 
 layout = [[psg.Column(left_col, justification="c"), psg.Column(right_col)]]
 
@@ -69,4 +70,3 @@ while True:
         window['-OUTPUT-'].update(values['-IN-'])
 
 window.close()
-
