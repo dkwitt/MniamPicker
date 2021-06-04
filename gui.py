@@ -54,7 +54,7 @@ tab_group = psg.TabGroup([[psg.Tab("Obiad", layout_obiad),
                              ]])
 right_col = [[tab_group]]
 
-layout = [[psg.Column(left_col, justification="c"), psg.Column(right_col)]]
+layout = [[psg.Column(left_col, justification="c", key='mytabs'), psg.Column(right_col)]]
 
 window = psg.Window("Mniam mniam picker", layout).Finalize()
 window.Maximize()
@@ -73,6 +73,7 @@ def new_window():
         print(current_tab)
         if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
+
         elif event == "Submit":
             print("debug", type(values))
 
@@ -81,10 +82,83 @@ def new_window():
             for row in a:
                 print(row)
                 baza.add_dodatkiobiadrelation(row[0],new_obiad_id)
+                window2.refresh()
             break
 
     window2.close()
 
+def read_window():
+    sort_by_list = ["podkładka", "mięso", "dodatki"]
+    third_layout = [[psg.Text("What do you want to eat today?", size=(25, 1))],
+                     [psg.Text("Select dinner by: ", size=(15, 1)), psg.Combo(sort_by_list)],
+                     [psg.Text("Select podkładka ", size=(15, 1)), psg.Combo(baza.get_db_podkladka(), key='-PODK-', readonly=True)],
+                    [psg.Text("Select mięso ", size=(15, 1)), psg.Combo(baza.get_db_mieso(), key='-MIES-', readonly=True)],
+                     [psg.Text("Dodatki", size=(15, 1))],
+                     [psg.Listbox(baza.get_db_dodatki(), select_mode='extended', key='-DODATKI-', size=(30, 6))],
+                     [psg.Button("Submit"), psg.Button("Cancel", key='-CANCEL-')]]
+    window3 = psg.Window("Obiad - podgląd", third_layout, modal=True).Finalize()
+    while True:
+        event, values = window3.read()
+        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+            break
+    window3.close()
+
+def update_window():
+    update_layout = [[psg.Text("Select what do you want to update", size=(25, 1))],
+                     [psg.Button("Podkładka", size=(15, 1))],
+                     [psg.Button("Mięso", size=(15, 1))],
+                     [psg.Button("Dodatki", size=(15, 1))],
+                     [psg.Button("Cancel", key='-CANCEL-')]]
+    window4 = psg.Window("Update", update_layout, modal=True).Finalize()
+    while True:
+        event, values = window4.read()
+        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+            break
+        elif event == "Podkładka":
+            add_new_podkladka_window()
+        elif event == "Mięso":
+            add_new_mieso_window()
+        elif event == "Dodatki":
+            add_new_dodatki_window()
+    window4.close()
+def add_new_podkladka_window():
+    add_new_layout = [[psg.Text("Add new position: ", size=(15,1)), psg.In(key='-NEW-')],
+                      [psg.Button("OK")]]
+    window5 = psg.Window("Add new", add_new_layout, modal=True).Finalize()
+    while True:
+        event, values = window5.read()
+        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+            break
+        if event == "OK":
+            baza.add_podkladka((str(values['-NEW-'])))
+            window5.refresh()
+            break
+    window5.close()
+
+def add_new_mieso_window():
+    add_new_layout = [[psg.Text("Add new position: ", size=(15, 1)), psg.In(key='-NEW-')],
+                          [psg.Button("OK")]]
+    window5 = psg.Window("Add new", add_new_layout, modal=True).Finalize()
+    while True:
+        event, values = window5.read()
+        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+            break
+        if event == "OK":
+            baza.add_mieso((str(values['-NEW-'])))
+            break
+    window5.close()
+def add_new_dodatki_window():
+    add_new_layout = [[psg.Text("Add new position: ", size=(15,1)), psg.In(key='-NEW-')],
+                      [psg.Button("OK")]]
+    window5 = psg.Window("Add new", add_new_layout, modal=True).Finalize()
+    while True:
+        event, values = window5.read()
+        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+            break
+        if event == "OK":
+            baza.add_dodatki((str(values['-NEW-'])))
+            break
+    window5.close()
 while True:
     event, values = window.read()
     if event == psg.WIN_CLOSED or event == "Exit":
@@ -92,16 +166,19 @@ while True:
     elif event == "Create":
         new_window()
     elif event == "Read":
-        psg.popup("popup")
+        read_window()
     elif event == "Update":
-        new_window()
+        update_window()
+    elif event == 'mytabs':
+      activeTab = window['mytabs'].Get()
     elif event == "Delete":
         if psg.popup_yes_no("Are you sure you want to delete this record?"):
             list_elements= window.Element('-TAB_OBIAD-').Get()
             costamn= tab_group.find_key_from_tab_name(tab_group.Get())
+            #activeTab = window['mytabs'].Get()
 
             print(list_elements,"\n",costamn)
-            # print(list_elements[values['-TAB_OBIAD-'][0]][0])
+            print(list_elements[values['-TAB_OBIAD-'][0]][0])
             baza.delete_obiad(list_elements[values['-TAB_OBIAD-'][0]][0])
         #     currently selected tab
         #     https://pysimplegui.readthedocs.io/en/latest/#the-qt-tableget-call
