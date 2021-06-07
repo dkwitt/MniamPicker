@@ -1,17 +1,18 @@
-import PySimpleGUI as psg
+import PySimpleGUI as sg
 
 import baza
-current_tab = 1
-psg.theme("GreenTan")
 
-left_col = [psg.Button("Create")],[psg.Button("Read")],[psg.Button("Update")],[psg.Button("Delete")]
+sg.theme("GreenTan")
+
+left_col = [sg.Button("Create")],[sg.Button("Read")],[sg.Button("Update")],[sg.Button("Delete")]
 
 data = baza.get_db_obiad()
 print(data)
 headings2 = ['Id', 'Nazwa', 'Podkladka', 'Mieso', 'Dodatki']
-layout_obiad = [[psg.Table(values=data[0:][:], headings=headings2, max_col_width= True,
+layout_obiad = [[sg.Table(values=data[0:][:], headings=headings2, max_col_width= True,
                     auto_size_columns=False,
                     display_row_numbers=False,
+                    enable_events=True,
                     justification='c',
                     alternating_row_color='lightyellow',
                     key='-TAB_OBIAD-',
@@ -19,9 +20,10 @@ layout_obiad = [[psg.Table(values=data[0:][:], headings=headings2, max_col_width
 
 data1 = baza.get_db_podkladka()
 headings3 = ['Id','Nazwa']
-layout_podkladka = [[psg.Table(values=data1[0:][:], headings=headings3, max_col_width= True,
+layout_podkladka = [[sg.Table(values=data1[0:][:], headings=headings3, max_col_width= True,
                     auto_size_columns=False,
                     display_row_numbers=False,
+                    enable_events=True,
                     justification='c',
                     alternating_row_color='lightyellow',
                     key='-TAB_PODKLADKA-',
@@ -29,9 +31,10 @@ layout_podkladka = [[psg.Table(values=data1[0:][:], headings=headings3, max_col_
 
 data2 = baza.get_db_mieso()
 headings4 = ['Id','Nazwa']
-layout_mieso = [[psg.Table(values=data2[0:][:], headings=headings4, max_col_width= True,
+layout_mieso = [[sg.Table(values=data2[0:][:], headings=headings4, max_col_width= True,
                     auto_size_columns=False,
                     display_row_numbers=False,
+                    enable_events=True,
                     justification='c',
                     alternating_row_color='lightyellow',
                     key='-TAB_MIESO-',
@@ -39,39 +42,59 @@ layout_mieso = [[psg.Table(values=data2[0:][:], headings=headings4, max_col_widt
 
 data3 = baza.get_db_dodatki()
 headings5 = ['Id','Nazwa']
-layout_dodatki = [[psg.Table(values=data3[0:][:], headings=headings5, max_col_width= True,
+layout_dodatki = [[sg.Table(values=data3[0:][:], headings=headings5, max_col_width= True,
                     auto_size_columns=False,
                     display_row_numbers=False,
+                    enable_events=True,
                     justification='c',
                     alternating_row_color='lightyellow',
                     key='-TAB_DODATKI-',
                     row_height=35)]]
 
-tab_group = psg.TabGroup([[psg.Tab("Obiad", layout_obiad),
-                             psg.Tab("Podkładka", layout_podkladka),
-                             psg.Tab("Mięso", layout_mieso),
-                             psg.Tab("Dodatki", layout_dodatki)
-                             ]])
+tab_group = sg.TabGroup([[sg.Tab("Obiad", layout_obiad),
+                             sg.Tab("Podkładka", layout_podkladka),
+                             sg.Tab("Mięso", layout_mieso),
+                             sg.Tab("Dodatki", layout_dodatki)]],
+                        key='-TAB_GROUP-',
+                        enable_events=True)
 right_col = [[tab_group]]
+# tab_keys = ('-TAB_OBIAD-', '-TAB_PODKLADKA-', '-TAB_MIESO-', '-TAB_DODATKI-')
 
-layout = [[psg.Column(left_col, justification="c", key='mytabs'), psg.Column(right_col)]]
+layout = [[sg.Column(left_col, justification="c", key='mytabs'), sg.Column(right_col)]]
 
-window = psg.Window("Mniam mniam picker", layout).Finalize()
+window = sg.Window("Mniam mniam picker", layout).Finalize()
 window.Maximize()
-
-def new_window():
-    second_layout = [[psg.Text("Nazwa ", size=(15,1)), psg.In(key='-NAZWA-')],
-              [psg.Text("Podkładka ", size=(15,1)), psg.Combo(baza.get_db_podkladka(), key='-PODKLADKA-', readonly=True)],
-              [psg.Text("Mięso ", size=(15,1)), psg.Combo(baza.get_db_mieso(), key='-MIESO-', readonly=True)],
-            [psg.Text("Dodatki", size=(15,1))],
-            [psg.Listbox(baza.get_db_dodatki(), select_mode='extended', key='-DODATKI-', size=(30, 6))],
-             [psg.Button("Submit"), psg.Button("Cancel", key='-CANCEL-')]]
-    window2 = psg.Window("Obiad - podgląd", second_layout, modal=True).Finalize()
+def get_table_name_from_tab(active_tab_name):
+    tabname_dict = {
+        "Obiad" : "obiad",
+        "Podkładka" : "podkladka",
+        "Mięso" : "mieso",
+        "Dodatki" : "dodatki"
+    }
+    # tu pobierasz tab_name- string który jest zwracany jako nazwa aktywnej zakładki, i zwracasz poprawną nazwę tabeli z bazy. Możesz to zrobić słownikiem.
+    return tabname_dict[active_tab_name]
+def get_table_key_from_tab(active_tab_name):
+    tabkey_dict = {
+        "Obiad" : "-TAB_OBIAD-",
+        "Podkładka" : "-TAB_PODKLADKA-",
+        "Mięso" : "-TAB_MIESO-",
+        "Dodatki" : "-TAB_DODATKI-"
+    }
+    # tu pobierasz tab_name- string który jest zwracany jako nazwa aktywnej zakładki, i zwracasz poprawną nazwę tabeli z bazy. Możesz to zrobić słownikiem.
+    return tabkey_dict[active_tab_name]
+def create_window():
+    second_layout = [[sg.Text("Nazwa ", size=(15,1)), sg.In(key='-NAZWA-')],
+              [sg.Text("Podkładka ", size=(15,1)), sg.Combo(baza.get_db_podkladka(), key='-PODKLADKA-', readonly=True)],
+              [sg.Text("Mięso ", size=(15,1)), sg.Combo(baza.get_db_mieso(), key='-MIESO-', readonly=True)],
+            [sg.Text("Dodatki", size=(15,1))],
+            [sg.Listbox(baza.get_db_dodatki(), select_mode='extended', key='-DODATKI-', size=(30, 6))],
+             [sg.Button("Submit"), sg.Button("Cancel")]]
+    window2 = sg.Window("Obiad - podgląd", second_layout, modal=True).Finalize()
     window2.Maximize()
     while True:
         event, values = window2.read()
-        print(current_tab)
-        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+
+        if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
 
         elif event == "Submit":
@@ -89,45 +112,36 @@ def new_window():
 
 def read_window():
     sort_by_list = ["podkładka", "mięso", "dodatki"]
-    third_layout = [[psg.Text("What do you want to eat today?", size=(25, 1))],
-                     [psg.Text("Select dinner by: ", size=(15, 1)), psg.Combo(sort_by_list)],
-                     [psg.Text("Select podkładka ", size=(15, 1)), psg.Combo(baza.get_db_podkladka(), key='-PODK-', readonly=True)],
-                    [psg.Text("Select mięso ", size=(15, 1)), psg.Combo(baza.get_db_mieso(), key='-MIES-', readonly=True)],
-                     [psg.Text("Dodatki", size=(15, 1))],
-                     [psg.Listbox(baza.get_db_dodatki(), select_mode='extended', key='-DODATKI-', size=(30, 6))],
-                     [psg.Button("Submit"), psg.Button("Cancel", key='-CANCEL-')]]
-    window3 = psg.Window("Obiad - podgląd", third_layout, modal=True).Finalize()
+    third_layout = [[sg.Text("What do you want to eat today?", size=(25, 1))],
+                     [sg.Text("Select dinner by: ", size=(15, 1)), sg.Combo(sort_by_list)],
+                     [sg.Text("Select podkładka ", size=(15, 1)), sg.Combo(baza.get_db_podkladka(), key='-PODK-', readonly=True)],
+                    [sg.Text("Select mięso ", size=(15, 1)), sg.Combo(baza.get_db_mieso(), key='-MIES-', readonly=True)],
+                     [sg.Text("Dodatki", size=(15, 1))],
+                     [sg.Listbox(baza.get_db_dodatki(), select_mode='extended', key='-DODATKI-', size=(30, 6))],
+                     [sg.Button("Submit"), sg.Button("Cancel", key='-CANCEL-')]]
+    window3 = sg.Window("Obiad - podgląd", third_layout, modal=True).Finalize()
     while True:
         event, values = window3.read()
-        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+        if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
     window3.close()
 
 def update_window():
-    update_layout = [[psg.Text("Select what do you want to update", size=(25, 1))],
-                     [psg.Button("Podkładka", size=(15, 1))],
-                     [psg.Button("Mięso", size=(15, 1))],
-                     [psg.Button("Dodatki", size=(15, 1))],
-                     [psg.Button("Cancel", key='-CANCEL-')]]
-    window4 = psg.Window("Update", update_layout, modal=True).Finalize()
+    update_layout = [[sg.Text("Update position: ", size=(15,1)), sg.In(key='-NEW-')],
+                      [sg.Button("OK"),sg.Button("Cancel")]]
+    window4 = sg.Window("Update", update_layout, element_justification='c', modal=True).Finalize()
     while True:
         event, values = window4.read()
-        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+        if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
-        elif event == "Podkładka":
-            add_new_podkladka_window()
-        elif event == "Mięso":
-            add_new_mieso_window()
-        elif event == "Dodatki":
-            add_new_dodatki_window()
     window4.close()
 def add_new_podkladka_window():
-    add_new_layout = [[psg.Text("Add new position: ", size=(15,1)), psg.In(key='-NEW-')],
-                      [psg.Button("OK")]]
-    window5 = psg.Window("Add new", add_new_layout, modal=True).Finalize()
+    add_new_layout = [[sg.Text("Add new position: ", size=(15,1)), sg.In(key='-NEW-')],
+                      [sg.Button("OK"),sg.Button("Cancel")]]
+    window5 = sg.Window("Add new", add_new_layout, modal=True).Finalize()
     while True:
         event, values = window5.read()
-        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+        if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
         if event == "OK":
             baza.add_podkladka((str(values['-NEW-'])))
@@ -136,24 +150,24 @@ def add_new_podkladka_window():
     window5.close()
 
 def add_new_mieso_window():
-    add_new_layout = [[psg.Text("Add new position: ", size=(15, 1)), psg.In(key='-NEW-')],
-                          [psg.Button("OK")]]
-    window5 = psg.Window("Add new", add_new_layout, modal=True).Finalize()
+    add_new_layout = [[sg.Text("Add new position: ", size=(15, 1)), sg.In(key='-NEW-')],
+                          [sg.Button("OK"),sg.Button("Cancel")]]
+    window5 = sg.Window("Add new", add_new_layout, modal=True).Finalize()
     while True:
         event, values = window5.read()
-        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+        if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
         if event == "OK":
             baza.add_mieso((str(values['-NEW-'])))
             break
     window5.close()
 def add_new_dodatki_window():
-    add_new_layout = [[psg.Text("Add new position: ", size=(15,1)), psg.In(key='-NEW-')],
-                      [psg.Button("OK")]]
-    window5 = psg.Window("Add new", add_new_layout, modal=True).Finalize()
+    add_new_layout = [[sg.Text("Add new position: ", size=(15,1)), sg.In(key='-NEW-')],
+                      [sg.Button("OK"),sg.Button("Cancel")]]
+    window5 = sg.Window("Add new", add_new_layout, modal=True).Finalize()
     while True:
         event, values = window5.read()
-        if event == psg.WIN_CLOSED or event == "Exit" or event == "Cancel":
+        if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
         if event == "OK":
             baza.add_dodatki((str(values['-NEW-'])))
@@ -161,30 +175,41 @@ def add_new_dodatki_window():
     window5.close()
 while True:
     event, values = window.read()
-    if event == psg.WIN_CLOSED or event == "Exit":
+    if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
         break
     elif event == "Create":
-        new_window()
+        active_tab_name = tab_group.find_key_from_tab_name(tab_group.Get())  # heading aktywnej zakładki
+        if active_tab_name == "Obiad":
+            create_window()
+        if active_tab_name == "Podkładka":
+            add_new_podkladka_window()
+        if active_tab_name == "Mięso":
+            add_new_mieso_window()
+        if active_tab_name == "Dodatki":
+            add_new_dodatki_window()
+
     elif event == "Read":
         read_window()
+
     elif event == "Update":
-        update_window()
-    elif event == 'mytabs':
-      activeTab = window['mytabs'].Get()
+        active_tab_name = tab_group.find_key_from_tab_name(tab_group.Get())  # heading aktywnej zakładki
+        if active_tab_name == "Obiad":
+            create_window()
+        if active_tab_name == "Podkładka":
+            update_window()
+        if active_tab_name == "Mięso":
+            update_window()
+        if active_tab_name == "Dodatki":
+            update_window()
+
     elif event == "Delete":
-        if psg.popup_yes_no("Are you sure you want to delete this record?"):
-            list_elements= window.Element('-TAB_OBIAD-').Get()
-            costamn= tab_group.find_key_from_tab_name(tab_group.Get())
-            #activeTab = window['mytabs'].Get()
+        if sg.popup_yes_no("Are you sure you want to delete this record?"):
 
-            print(list_elements,"\n",costamn)
-            print(list_elements[values['-TAB_OBIAD-'][0]][0])
-            baza.delete_obiad(list_elements[values['-TAB_OBIAD-'][0]][0])
-        #     currently selected tab
-        #     https://pysimplegui.readthedocs.io/en/latest/#the-qt-tableget-call
-
-
-
+            active_tab_name = tab_group.find_key_from_tab_name(tab_group.Get()) #heading aktywnej zakładki
+            list_elements = window.Element(get_table_key_from_tab(str(active_tab_name))).Get() #zwraca klucz aktywnej zakl
+            print(list_elements, "\n",active_tab_name)
+            print(list_elements[values[get_table_key_from_tab(str(active_tab_name))][0]][0]) #print id zaznaczonego rowa
+            baza.delete_from_db(list_elements[values[get_table_key_from_tab(str(active_tab_name))][0]][0],get_table_name_from_tab(str(active_tab_name)))
         else:
             break
 

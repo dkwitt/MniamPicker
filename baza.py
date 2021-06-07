@@ -1,5 +1,5 @@
 import sqlite3
-import json
+
 DB_DIR = 'C:\\Users\\Dominika\\Mniam\\MniamPicker\\testdb5.sqlite'
 
 class Obiad:
@@ -17,25 +17,29 @@ class Obiad:
         self.dodatki = get_relation_obiad(self.id)
 
 
-
 class Mieso:
     nazwa = None
     id = None
     def __init__(self, id, nazwa):
         self.id = id
         self.nazwa = nazwa
+
+
 class Podkladka:
     nazwa = None
     id = None
     def __init__(self, id, nazwa):
         self.id = id
         self.nazwa = nazwa
+
+
 class Dodatki:
     nazwa = None
     id = None
     def __init__(self, id, nazwa):
         self.id = id
         self.nazwa = nazwa
+
 
 class DodatkiObiadRelation:
     fk_obiad = None
@@ -108,8 +112,6 @@ def start():
     cursor.execute(query)
     connection.commit()
     connection.close()
-
-
 
 
 def add_obiad(podkladka, mieso, nazwa):
@@ -195,6 +197,56 @@ def update_obiad(podkladka, mieso, dodatki):
     conn.close()
 
 
+
+def delete_podkladka(id):
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = f"""
+            DELETE
+            FROM podkladka
+            WHERE id_podkladka = {id}"""
+
+    cursor.execute(query)
+    conn.commit()
+    conn.close()
+
+
+def delete_mieso(id):
+    conn = sqlite3.connect(DB_DIR)
+
+    cursor = conn.cursor()
+
+    query = f"""
+                DELETE
+                FROM mieso
+                WHERE id_mieso = {id}"""
+
+    cursor.execute(query)
+    conn.commit()
+    conn.close()
+
+def create_new(podkladka, mieso, dodatki, table_name):
+    if table_name=="obiad":
+        add_obiad()
+    elif table_name=="podkladka":
+        delete_podkladka(id)
+    elif table_name=="mieso":
+        delete_mieso(id)
+    elif table_name=="dodatki":
+        delete_dodatki(id)
+
+def delete_from_db(id, table_name):
+    if table_name=="obiad":
+        delete_obiad(id)
+    elif table_name=="podkladka":
+        delete_podkladka(id)
+    elif table_name=="mieso":
+        delete_mieso(id)
+    elif table_name=="dodatki":
+        delete_dodatki(id)
+
 def delete_obiad(id):
     conn = sqlite3.connect(DB_DIR)
 
@@ -207,8 +259,6 @@ def delete_obiad(id):
 
     cursor.execute(query)
     conn.commit()
-
-    conn = sqlite3.connect(DB_DIR)
 
     cursor = conn.cursor()
     query = f"""
@@ -399,7 +449,7 @@ def read_data():
     for obiad in obiady:
         print(obiad)
 
-# + moze funkcja na sortowanie???
+
 def validate_sql_safe(slowo):
 
     forbidden_inputs = ["update", "remove", "drop", "table", "*", "from", "'", "select", "insert", ";", "add", "delete" ]
@@ -417,18 +467,7 @@ def validate_sql_safe(slowo):
         else:
             return True
 
-# def select():
-#     choice = input("1. Create\n2. Read\n3. Update\n4. Delete\n5. Exit\n\n")
-#     if choice == "1":
-#         odp = input("insert new position for category:podkladka\n")
-#         if validate_sql_safe(odp):
-#             add_podkladka(odp)
-#         odp2 = input("insert new position for category:mieso\n")
-#         if validate_sql_safe(odp):
-#             add_mieso(odp2)
-#         odp3 = input("insert new position for category:dodatki\n")
-#         if validate_sql_safe(odp):
-#             add_dodatki(odp3)
+
 start()
 
 
@@ -449,9 +488,9 @@ def add_dodatkiobiadrelation(id_dodatki, id_obiad):
     conn.close()
 
 def seed_db():
-    add_dodatki("pomidor")
-    add_dodatki("burak")
-    add_dodatki("ogórek")
+    add_dodatki("x")
+    add_dodatki("y")
+    add_dodatki("z")
     add_mieso("zraz")
     add_mieso("schab")
     add_mieso("kurczak")
