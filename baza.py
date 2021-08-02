@@ -3,65 +3,6 @@ import sqlite3
 DB_DIR = 'C:\\Users\\Dominika\\Mniam\\MniamPicker\\testdb5.sqlite'
 
 
-class Obiad:
-    nazwa = None
-    id = None
-    podkladka = None
-    mieso = None
-    dodatki = []
-
-    def __init__(self, id, nazwa, podkladka, mieso):
-        self.id = id
-        self.nazwa = nazwa
-        self.podkladka = podkladka
-        self.mieso = mieso
-
-    def update_self_dodatki(self):
-        self.dodatki = get_relation_obiad(self.id)
-
-
-class Mieso:
-    nazwa = None
-    id = None
-
-    def __init__(self, id, nazwa):
-        self.id = id
-        self.nazwa = nazwa
-
-
-class Podkladka:
-    nazwa = None
-    id = None
-
-    def __init__(self, id, nazwa):
-        self.id = id
-        self.nazwa = nazwa
-
-
-class Dodatki:
-    nazwa = None
-    id = None
-
-    def __init__(self, id, nazwa):
-        self.id = id
-        self.nazwa = nazwa
-
-
-class DodatkiObiadRelation:
-    fk_obiad = None
-    fk_dodatki = None
-
-    def __init__(self, fk_dodatki, fk_obiad):
-        self.fk_dodatki = fk_dodatki
-        self.fk_obiad = fk_obiad
-
-
-# 1. STWORZENIE BAZY I POŁĄCZENIE JEJ
-# 2. NAPISANIE FUNKCJI CREATE/ADD? OBIAD/PODL/DOD
-# 3. FUNKCJA READ
-# 4. FUNKCJA UPDATE
-# 5. FUNKCJA DELETE
-
 def start():
     connection = sqlite3.connect(DB_DIR)
 
@@ -314,17 +255,6 @@ def delete_mieso(id):
     conn.close()
 
 
-def create_new(podkladka, mieso, dodatki, table_name):
-    if table_name == "obiad":
-        add_obiad()
-    elif table_name == "podkladka":
-        delete_podkladka(id)
-    elif table_name == "mieso":
-        delete_mieso(id)
-    elif table_name == "dodatki":
-        delete_dodatki(id)
-
-
 def delete_from_db(id, table_name):
     if table_name == "obiad":
         delete_obiad(id)
@@ -424,14 +354,6 @@ def get_relation_obiad(id_obiad):
     conn.commit()
     conn.close()
     return lista
-
-
-def list_to_string(list_in):
-    # print(list_in)
-    str_out = ""
-    for ele in list_in:
-        str_out += str(ele)
-    return str_out
 
 
 def get_db_mieso():
@@ -566,59 +488,6 @@ def get_dodatki_name(id):
     return one_row[1]
 
 
-def get_podkladka_id(name):
-    conn = sqlite3.connect(DB_DIR)
-
-    cursor = conn.cursor()
-
-    query = f"""
-               	    SELECT *
-               	    FROM podkladka
-               	    WHERE nazwa = {name}
-               	"""
-    cursor.execute(query)
-    # all_rows = cursor.fetchall()
-    one_row = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    return one_row[0]
-
-
-def get_mieso_id(name):
-    conn = sqlite3.connect(DB_DIR)
-
-    cursor = conn.cursor()
-
-    query = f"""
-           	    SELECT *
-           	    FROM mieso
-           	    WHERE nazwa = {name}
-           	"""
-    cursor.execute(query)
-    # all_rows = cursor.fetchall()
-    one_row = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    return one_row[0]
-
-
-def get_dodatki_id(name):
-    conn = sqlite3.connect(DB_DIR)
-
-    cursor = conn.cursor()
-
-    query = f"""
-        	    SELECT *
-        	    FROM dodatki
-        	    WHERE nazwa = {name}
-        	"""
-    cursor.execute(query)
-    one_row = cursor.fetchone()
-    conn.commit()
-    conn.close()
-    return one_row[0]
-
-
 def get_id_from_obiad(id):
     conn = sqlite3.connect(DB_DIR)
 
@@ -659,13 +528,6 @@ def get_id_from_dodatkiobiadrelation(id):
     conn.commit()
     conn.close()
     return lista2
-
-
-def read_data():
-    obiady = get_db_obiad()
-    for obiad in obiady:
-        # print(obiad)
-        pass
 
 
 def validate_sql_safe(slowo):
@@ -721,21 +583,5 @@ def seed_db():
     add_obiad(2, 2, "trzeci")
 
 
-def clear_databse():
-    pass
-
-
 start()
 # seed_db()
-
-## print(get_db_podkladka())
-## print(len(LIST_PODKLADKA))
-## print(get_db_dodatki())
-# add_dodatki("dod4")
-# add_dodatki("dod5")
-# add_dodatki("dod6")
-# add_dodatki("dod7")
-# add_dodatki("miłosc")
-# add_dodatki("slicznosci")
-# add_dodatki("slodkosci")
-# add_dodatki("cukier")

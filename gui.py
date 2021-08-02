@@ -1,8 +1,6 @@
 import PySimpleGUI as sg
 
 import baza
-import cos
-
 sg.theme("GreenTan")
 
 left_col = [sg.Button("Create")], [sg.Button("Read")], [sg.Button("Update")], [sg.Button("Delete")]
@@ -22,6 +20,7 @@ data1 = baza.get_db_podkladka()
 headings3 = ['Id', 'Nazwa']
 layout_podkladka = [[sg.Table(values=data1[0:][:], headings=headings3, max_col_width=True,
                               auto_size_columns=False,
+                              select_mode= 'browse',
                               display_row_numbers=False,
                               enable_events=True,
                               justification='c',
@@ -62,9 +61,8 @@ right_col = [[tab_group]]
 
 layout = [[sg.Column(left_col, justification="c", key='mytabs'), sg.Column(right_col)]]
 
-window = sg.Window("Mniam mniam picker", layout).Finalize()
-window.Maximize()
-
+window = sg.Window("Mniam mniam picker", layout, resizable=True).Finalize()
+window_main = sg.Window("Mniam mniam picker", layout, resizable=True).Finalize()
 
 def get_table_name_from_tab(active_tab_name):
     tabname_dict = {
@@ -92,10 +90,9 @@ def create_window():
                       sg.Combo(baza.get_db_podkladka(), key='-PODKLADKA-', readonly=True)],
                      [sg.Text("Mięso ", size=(15, 1)), sg.Combo(baza.get_db_mieso(), key='-MIESO-', readonly=True)],
                      [sg.Text("Dodatki", size=(15, 1))],
-                     [sg.Listbox(baza.get_db_dodatki(), select_mode='extended', key='-DODATKI-', size=(30, 6))],
+                     [sg.Listbox(baza.get_db_dodatki(), select_mode='multiple', key='-DODATKI-', size=(30, 6))],
                      [sg.Button("Submit"), sg.Button("Cancel")]]
-    window2 = sg.Window("Create window", second_layout, modal=True).Finalize()
-    window2.Maximize()
+    window2 = sg.Window("Create window", second_layout, resizable=True).Finalize()
     while True:
         event, values = window2.read()
 
@@ -104,20 +101,20 @@ def create_window():
 
         elif event == "Submit":
             # print("debug", type(values))
-
             new_obiad_id = baza.add_obiad(str(values['-PODKLADKA-'][0]), str(values['-MIESO-'][0]),
                                           str(values['-NAZWA-']))
             a = values['-DODATKI-']
             for row in a:
                 # print(row)
                 baza.add_dodatkiobiadrelation(row[0], new_obiad_id)
-                window2.refresh()
+
+
             break
 
     window2.close()
 
 
-def read_window():
+def read_windw():
     sort_by_list = ["podkładka", "mięso", "dodatki"]
     third_layout = [[sg.Text("What do you want to eat today?", size=(25, 1))],
                     [sg.Text("Select dinner by: ", size=(15, 1)), sg.Combo(sort_by_list)],
@@ -139,22 +136,21 @@ def read_window():
 def add_new_podkladka_window():
     add_new_layout = [[sg.Text("Add new position: ", size=(15, 1)), sg.In(key='-NEW-')],
                       [sg.Button("OK"), sg.Button("Cancel")]]
-    window5 = sg.Window("Create window", add_new_layout, modal=True).Finalize()
+    window4 = sg.Window("Create window", add_new_layout, resizable=True).Finalize()
     while True:
-        event, values = window5.read()
+        event, values = window4.read()
         if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
         if event == "OK":
             baza.add_podkladka((str(values['-NEW-'])))
-            window5.refresh()
             break
-    window5.close()
+    window4.close()
 
 
 def add_new_mieso_window():
     add_new_layout = [[sg.Text("Add new position: ", size=(15, 1)), sg.In(key='-NEW-')],
                       [sg.Button("OK"), sg.Button("Cancel")]]
-    window5 = sg.Window("Create window", add_new_layout, modal=True).Finalize()
+    window5 = sg.Window("Create window", add_new_layout, resizable=True).Finalize()
     while True:
         event, values = window5.read()
         if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
@@ -168,15 +164,17 @@ def add_new_mieso_window():
 def add_new_dodatki_window():
     add_new_layout = [[sg.Text("Add new position: ", size=(15, 1)), sg.In(key='-NEW-')],
                       [sg.Button("OK"), sg.Button("Cancel")]]
-    window5 = sg.Window("Create window", add_new_layout, modal=True).Finalize()
+    window6 = sg.Window("Create window", add_new_layout, resizable=True).Finalize()
     while True:
-        event, values = window5.read()
+        event, values = window6.read()
         if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
             break
         if event == "OK":
             baza.add_dodatki((str(values['-NEW-'])))
+
             break
-    window5.close()
+
+    window6.close()
 
 
 def get_lista_record(podkladka_list, podkladka_id):
@@ -222,17 +220,16 @@ def update_obiad(old_podkladka_name, old_mieso_name, old_dodatki_names, id_obiad
                      [sg.Button("Submit"), sg.Button("Cancel")]]
     print(old_dodatki_names, "dodatkiiiiiiii")
     print(baza.get_db_dodatki())
-    window2 = sg.Window("Update window", second_layout, modal=True).Finalize()
+    window7 = sg.Window("Update window", second_layout, resizable=True).Finalize()
     currently_selected_dod = lista_dod(id_dodatkow, dodatki_list)
     # id=1,2,3,4
     # i++
     # listaDod lista_wszystkich_dodatki[i]==ktorys_z(id) to dodaj(i) do indeks_listy_dodatkow
-    window2.Element('cos').Update(set_to_index=currently_selected_dod)  # indeks_listy_dodatkow) #wiersze
+    window7.Element('cos').Update(set_to_index=currently_selected_dod)  # indeks_listy_dodatkow) #wiersze
     # dodatki_list[currently_selected_dod][0]
-    window2.Maximize()
 
     while True:
-        event, values = window2.read()
+        event, values = window7.read()
         print(values, "debug")
 
         if event == sg.WIN_CLOSED or event == "Exit" or event == "Cancel":
@@ -249,7 +246,7 @@ def update_obiad(old_podkladka_name, old_mieso_name, old_dodatki_names, id_obiad
 
             break
 
-    window2.close()
+    window7.close()
 
 
 while True:
@@ -312,6 +309,7 @@ while True:
         if active_tab_name == "Dodatki":
             baza.update_dodatki(input_text, list_elements[values[get_table_key_from_tab(str(active_tab_name))][0]][0])
 
+
     elif event == "Delete":
         if sg.popup_yes_no("Are you sure you want to delete this record?"):
 
@@ -319,7 +317,6 @@ while True:
             list_elements = window.Element(get_table_key_from_tab(str(active_tab_name))).Get()
             # print(list_elements, "\n",active_tab_name)
             # print(list_elements[values[get_table_key_from_tab(str(active_tab_name))][0]][0]) ## print id zaznaczonego rowa
-
             baza.delete_from_db(list_elements[values[get_table_key_from_tab(str(active_tab_name))][0]][0],
                                 get_table_name_from_tab(str(active_tab_name)))
         else:
