@@ -58,11 +58,10 @@ tab_group = sg.TabGroup([[sg.Tab("Obiad", layout_obiad),
                         enable_events=True)
 right_col = [[tab_group]]
 # tab_keys = ('-TAB_OBIAD-', '-TAB_PODKLADKA-', '-TAB_MIESO-', '-TAB_DODATKI-')
-
 layout = [[sg.Column(left_col, justification="c", key='mytabs'), sg.Column(right_col)]]
 
 window = sg.Window("Mniam mniam picker", layout, resizable=True).Finalize()
-window_main = sg.Window("Mniam mniam picker", layout, resizable=True).Finalize()
+
 
 def get_table_name_from_tab(active_tab_name):
     tabname_dict = {
@@ -92,6 +91,7 @@ def create_window():
                      [sg.Text("Dodatki", size=(15, 1))],
                      [sg.Listbox(baza.get_db_dodatki(), select_mode='multiple', key='-DODATKI-', size=(30, 6))],
                      [sg.Button("Submit"), sg.Button("Cancel")]]
+
     window2 = sg.Window("Create window", second_layout, resizable=True).Finalize()
     while True:
         event, values = window2.read()
